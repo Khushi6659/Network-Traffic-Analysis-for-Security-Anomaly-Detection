@@ -1,0 +1,68 @@
+# ml_model_final_fixed.py
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, confusion_matrix
+import joblib
+
+def train_ml_model(input_file="features_data.csv", model_file="network_intrusion_model.pkl"):
+    print("Starting ML Model Training...\n")
+
+    # 1️ Load dataset
+    df = pd.read_csv(input_file)
+    print(f"Dataset loaded with shape: {df.shape}\n")
+
+    # 2️ Create binary attack column from 'label'
+    df['attack'] = df['label'].apply(lambda x: 0 if x == 0 else 1)
+    print("Class distribution (before sampling):")
+    print(df['attack'].value_counts(), "\n")
+
+    # 3️ Sample dataset safely (approximate stratified)
+    sample_size = 1000000
+    fractions = sample_size / len(df)
+    df_sample = pd.concat([x.sample(frac=fractions, random_state=42) for _, x in df.groupby('attack')])
+    print(f"Using a sample of {len(df_sample)} rows for training\n")
+
+    # 4️ Drop irrelevant columns
+    drop_cols = ['uid', 'ts', 'id.orig_h', 'id.resp_h', 'attack_type', 'label']
+    df_sample = df_sample.drop([c for c in drop_cols if c in df_sample.columns], axis=1)
+
+    # 5️ Split features and target
+    X = df_sample.drop('attack', axis=1)
+    y = df_sample['attack']
+
+    # 6️ Encode categorical columns
+    for col in X.select_dtypes(include=['object']).columns:
+        le = LabelEncoder()
+        X[col] = le.fit_transform(X[col])
+
+    # 7️ Scale numeric features
+    numeric_cols = X.select_dtypes(include=['int64', 'float64']).columns
+    scaler = StandardScaler()
+    X[numeric_cols] = scaler.fit_transform(X[numeric_cols])
+
+    # 8️ Train-test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=42, stratify=y
+    )
+    print(f"Training data shape: {X_train.shape}, Testing data shape: {X_test.shape}\n")
+
+    # 9️ Train Random Forest
+    model = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
+    model.fit(X_train, y_train)
+    print("Model training completed.\n")
+
+    # 10 Evaluate
+    y_pred = model.predict(X_test)
+    print("Classification Report:\n")
+    print(classification_report(y_test, y_pred))
+    print("\nConfusion Matrix:\n")
+    print(confusion_matrix(y_test, y_pred))
+
+    # 1️1️ Save model
+    joblib.dump(model, model_file)
+    print(f"\nModel saved as '{model_file}'")
+
+if __name__ == "__main__":
+    train_ml_model()
