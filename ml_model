@@ -1,12 +1,14 @@
-# ml_model_final_fixed.py
+# ml_model_enhanced_full.py
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix
 import joblib
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-def train_ml_model(input_file="features_data.csv", model_file="network_intrusion_model.pkl"):
+def train_ml_model(input_file="features_data.csv", model_file="network_intrusion_model_enhanced.pkl"):
     print("Starting ML Model Training...\n")
 
     # 1️ Load dataset
@@ -37,30 +39,56 @@ def train_ml_model(input_file="features_data.csv", model_file="network_intrusion
         le = LabelEncoder()
         X[col] = le.fit_transform(X[col])
 
-    # 7️ Scale numeric features
+    # 7️ Add extra derived features
+    X['pkt_ratio'] = X['fwd_pkts_tot'] / (X['bwd_pkts_tot'] + 1)
+    X['data_ratio'] = X['fwd_data_pkts_tot'] / (X['bwd_data_pkts_tot'] + 1)
+    X['header_ratio'] = X['fwd_header_size_tot'] / (X['bwd_header_size_tot'] + 1)
+    X['flow_per_sec_ratio'] = X['fwd_pkts_per_sec'] / (X['bwd_pkts_per_sec'] + 1)
+    X['down_up_ratio_alt'] = X['down_up_ratio']
+    # Optional advanced features:
+    X['total_flags'] = (X['flow_fin_flag_count'] + X['flow_syn_flag_count'] +
+                        X['flow_rst_flag_count'] + X['fwd_psh_flag_count'] +
+                        X['bwd_psh_flag_count'] + X['flow_ack_flag_count'] +
+                        X['fwd_urg_flag_count'] + X['bwd_urg_flag_count'] +
+                        X['flow_cwr_flag_count'] + X['flow_ece_flag_count'])
+    X['payload_per_pkt'] = X['payload_bytes_per_second'] / (X['fwd_pkts_tot'] + X['bwd_pkts_tot'] + 1)
+    X['window_size_ratio'] = (X['fwd_init_window_size'] + 1) / (X['bwd_init_window_size'] + 1)
+
+    # 8️ Scale numeric features
     numeric_cols = X.select_dtypes(include=['int64', 'float64']).columns
     scaler = StandardScaler()
     X[numeric_cols] = scaler.fit_transform(X[numeric_cols])
 
-    # 8️ Train-test split
+    # 9️ Train-test split
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42, stratify=y
     )
     print(f"Training data shape: {X_train.shape}, Testing data shape: {X_test.shape}\n")
 
-    # 9️ Train Random Forest
+    # 10️ Train Random Forest
     model = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
     model.fit(X_train, y_train)
     print("Model training completed.\n")
 
-    # 10 Evaluate
+    # 11️ Evaluate
     y_pred = model.predict(X_test)
     print("Classification Report:\n")
     print(classification_report(y_test, y_pred))
-    print("\nConfusion Matrix:\n")
-    print(confusion_matrix(y_test, y_pred))
 
-    # 1️1️ Save model
+    # 12️ Confusion Matrix
+    cm = confusion_matrix(y_test, y_pred)
+    print("\nConfusion Matrix:\n")
+    print(cm)
+
+    # Plot confusion matrix
+    plt.figure(figsize=(6,5))
+    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=[0,1], yticklabels=[0,1])
+    plt.xlabel("Predicted Label")
+    plt.ylabel("True Label")
+    plt.title("Confusion Matrix Heatmap")
+    plt.show()
+
+    # 13️ Save model
     joblib.dump(model, model_file)
     print(f"\nModel saved as '{model_file}'")
 
