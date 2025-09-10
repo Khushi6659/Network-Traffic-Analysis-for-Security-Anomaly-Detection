@@ -1,0 +1,158 @@
+/* body {
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    color: #e0e0e0;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    background: #1e1e1e;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+
+h1, h2 {
+    color: #00e676;
+}
+
+button, .btn {
+    background: #00e676;
+    color: #121212;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover, .btn:hover {
+    background: #00c853;
+}
+
+a {
+    color: #00e676;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+.data {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+}
+.data th, .data td {
+    border: 1px solid #444;
+    padding: 8px;
+    text-align: center;
+} */
+
+/* General styles */
+body {
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    margin: 0;
+    padding: 0;
+    transition: background 0.3s, color 0.3s;
+}
+
+/* Light theme */
+body.light-theme {
+    background: #f8f9fa;
+    color: #222;
+}
+
+/* Dark theme */
+body.dark-theme {
+    background: #181818;
+    color: #f8f9fa;
+}
+
+/* Container */
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    text-align: center;
+}
+
+/* Headings */
+h1 {
+    margin-bottom: 10px;
+    font-size: 2.2em;
+}
+
+.subtitle {
+    margin-bottom: 30px;
+    color: gray;
+}
+
+/* Upload box */
+.upload-box {
+    padding: 20px;
+    border: 2px dashed #666;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.05);
+    display: inline-block;
+}
+
+.upload-box input[type="file"] {
+    margin: 15px 0;
+}
+
+button, .btn {
+    background: #0078ff;
+    border: none;
+    padding: 12px 20px;
+    color: white;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+button:hover, .btn:hover {
+    background: #005fcc;
+}
+
+/* Results */
+.card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: left;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+    overflow-x: auto;
+}
+
+.card img {
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+pre {
+    background: rgba(0,0,0,0.1);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+/* Theme toggle */
+.theme-toggle {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+
+.theme-toggle button {
+    background: transparent;
+    color: inherit;
+    border: 2px solid currentColor;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
